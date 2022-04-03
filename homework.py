@@ -53,7 +53,7 @@ class Training:
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
         return InfoMessage(
-            training_type=str(type(self).__name__),
+            training_type=type(self).__name__,
             duration=self.duration,
             distance=self.get_distance(),
             speed=self.get_mean_speed(),
@@ -125,7 +125,7 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    workout_types: Dict[str, Training] = {
+    workout_types: Dict[str, type[Training]] = {
         'SWM': Swimming, 'RUN': Running, 'WLK': SportsWalking}
     if workout_type not in workout_types:
         raise ValueError(f'{workout_type} отсутствует в списке тренеровок')
