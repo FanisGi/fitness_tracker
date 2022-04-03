@@ -1,17 +1,15 @@
+from dataclasses import dataclass
+from typing import Dict
+
+
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
-    def __init__(
-            self,
-            training_type: str,
-            duration: float,
-            distance: float,
-            speed: float,
-            calories: float) -> None:
-        self.training_type = training_type
-        self.duration = duration
-        self.distance = distance
-        self.speed = speed
-        self.calories = calories
+    training_type: str
+    duration: float
+    distance: float
+    speed: float
+    calories: float
 
     def get_message(self) -> str:
         return (f'Тип тренировки: {self.training_type}; '
@@ -29,6 +27,7 @@ class Training:
     LEN_STEP: float = 0.65
     M_IN_KM: int = 1000
     training_type: str = ''
+    DUR_MIN: int = 60
 
     def __init__(self,
                  action: int,
@@ -49,7 +48,7 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        pass
+        raise NotImplementedError('Метод не реализован')
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -64,25 +63,21 @@ class Training:
 
 class Running(Training):
     """Тренировка: бег."""
-    training_type: str = 'Running'
-    coeff_calorie_1: int = 18
-    coeff_calorie_2: int = 20
-    dur_min: int = 60
+    COEF_RUN_1: int = 18
+    COEF_RUN_2: int = 20
 
     def get_spent_calories(self) -> float:
-        return ((self.coeff_calorie_1 * self.get_mean_speed()
-                - self.coeff_calorie_2) * self.weight
-                / self.M_IN_KM * (self.duration * self.dur_min)
+        return ((self.COEF_RUN_1 * self.get_mean_speed()
+                - self.COEF_RUN_2) * self.weight
+                / self.M_IN_KM * (self.duration * self.DUR_MIN)
                 )
 
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
-    training_type: str = 'SportsWalking'
-    coeff_wlk_1: float = 0.035
-    coeff_wlk_2: float = 0.029
-    voz_v_kvd: int = 2
-    dur_min: int = 60
+    COEF_WLK_1: float = 0.035
+    COEF_WLK_2: float = 0.029
+    VOZ_V_KVD: int = 2
 
     def __init__(self,
                  action: int,
@@ -94,18 +89,17 @@ class SportsWalking(Training):
         self.weight = weight
 
     def get_spent_calories(self) -> float:
-        return ((self.coeff_wlk_1 * self.weight
-                + (self.get_mean_speed() ** self.voz_v_kvd // self.height)
-                * self.coeff_wlk_2 * self.weight) * self.duration
-                * self.dur_min)
+        return ((self.COEF_WLK_1 * self.weight
+                + (self.get_mean_speed() ** self.VOZ_V_KVD // self.height)
+                * self.COEF_WLK_2 * self.weight) * self.duration
+                * self.DUR_MIN)
 
 
 class Swimming(Training):
     """Тренировка: плавание."""
-    training_type: str = 'Swimming'
     LEN_STEP: float = 1.38
-    coeff_swn_1: float = 1.1
-    coeff_swn_2: int = 2
+    COEF_SWN_1: float = 1.1
+    COEF_SWN_2: int = 2
 
     def __init__(self,
                  action: int,
@@ -125,13 +119,16 @@ class Swimming(Training):
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        return ((self.get_mean_speed() + self.coeff_swn_1)
-                * self.coeff_swn_2 * self.weight)
+        return ((self.get_mean_speed() + self.COEF_SWN_1)
+                * self.COEF_SWN_2 * self.weight)
 
 
-def read_package(workout_type: str, data: list) -> Training:
+def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    workout_types = {'SWM': Swimming, 'RUN': Running, 'WLK': SportsWalking}
+    workout_types: Dict[str, type[Training]] = {
+        'SWM': Swimming, 'RUN': Running, 'WLK': SportsWalking}
+    if workout_type not in workout_types:
+        raise ValueError(f'{workout_type} отсутствует в списке тренеровок')
     return workout_types[workout_type](*data)
 
 

@@ -144,3 +144,6 @@ dmypy.json
 .history/
 
 .mypy_cache
+
+# venv_hw_python_oop
+venv_hw_python_oop/
