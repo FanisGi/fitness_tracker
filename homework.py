@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Type
 
 
 @dataclass
@@ -26,7 +26,6 @@ class Training:
     """Базовый класс тренировки."""
     LEN_STEP: float = 0.65
     M_IN_KM: int = 1000
-    training_type: str = ''
     DUR_MIN: int = 60
 
     def __init__(self,
@@ -125,7 +124,7 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    workout_types: Dict[str, type[Training]] = {
+    workout_types: Dict[str, Type[Training]] = {
         'SWM': Swimming, 'RUN': Running, 'WLK': SportsWalking}
     if workout_type not in workout_types:
         raise ValueError(f'{workout_type} отсутствует в списке тренеровок')
